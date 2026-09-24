@@ -4,6 +4,22 @@
 
 **Just describe your business — AI guides you through building a complete data model: ODS→DWD→DWS→ADS warehouse layers, unified metric calibers, indicator system.**
 
+## 效果：从杂乱到有序 | From Chaos to Structure
+
+**原始数据（3300 万条评分、8 万部电影、4 张散表）→ AI 引导建模 → 四层数仓 → 可交互看板**
+
+**Raw data (33M ratings, 86K movies, 4 scattered tables) → AI-guided modeling → 4-layer warehouse → interactive dashboard**
+
+### 数据模型地图 | Data Model Map
+
+![Model Map](screenshots/model-map.png)
+*MovieLens 开源数据：25 张表、6 个层级（ODS→DIM→DWD→DWM→DWS→ADS）| MovieLens open data: 25 tables, 6 layers*
+
+### 建模后的看板输出 | Dashboard Output
+
+![Dashboard](screenshots/dashboard-output.png)
+*从杂乱数据到飞书风格可交互看板 | From raw data to Feishu-style interactive dashboard*
+
 ## 它做了什么 | What It Does
 
 1. **AI 引导建模** — 不需要懂数据库，AI 用业务语言引导你拍板每个指标口径

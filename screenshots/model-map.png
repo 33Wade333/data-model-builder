@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>17-MovieLens电影平台 · 数据模型地图</title>
+<style>
+:root{--bg:#f6f8fa;--card:#fff;--ink:#1a2332;--sub:#5a6b85;--blue:#2563eb;--border:#e2e8f0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px 60px}
+header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:32px 0 24px;margin-bottom:22px}
+h1{font-size:24px} .sub{opacity:.85;font-size:13.5px;margin-top:4px}
+.stats{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+.stats span{background:rgba(255,255,255,.15);padding:3px 14px;border-radius:16px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+h2{font-size:18px;margin:26px 0 10px;color:var(--blue)}
+.flowsvg{width:100%;height:auto;display:block}
+.lanes{display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:12px}
+.lane{flex:1;min-width:215px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.lane-head{background:var(--lc);color:#fff;padding:10px 14px}
+.lane-name{font-weight:700;font-size:14.5px} .lane-duty{font-size:11.5px;opacity:.92;margin-top:2px}
+.lane-meta{font-size:11px;opacity:.85;margin-top:2px}
+.tcard{border-bottom:1px solid var(--border)}
+.tcard:last-child{border-bottom:none}
+.tcard summary{padding:9px 12px;cursor:pointer;font-size:12.5px;list-style:none;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.tcard summary::-webkit-details-marker{display:none}
+.tcard summary:hover{background:#f1f5f9}
+.tname{font-size:12.5px;color:var(--blue)}
+.trows{font-size:11px;color:var(--sub);background:#f1f5f9;border-radius:10px;padding:1px 8px}
+.tremark{font-size:11px;color:var(--sub);flex-basis:100%}
+.tbody{padding:8px 12px 12px;background:#fafbfd}
+.meta{font-size:11.5px;color:var(--sub);margin:3px 0}
+.chip{display:inline-block;font-size:11px;background:#eef2ff;color:var(--blue);border-radius:10px;padding:1px 9px;margin:1px 3px 1px 0;text-decoration:none;border:1px solid #dbe4ff}
+.chip.src{background:#f1f5f9;color:var(--sub);border-color:var(--border)}
+table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px}
+th{background:#eef2ff;padding:4px 8px;border:1px solid var(--border);text-align:left}
+td{padding:3px 8px;border:1px solid var(--border)}
+code{font-family:Consolas,monospace;font-size:11px;color:#334155}
+footer{text-align:center;color:var(--sub);font-size:12px;margin-top:30px;padding-top:14px;border-top:1px solid var(--border)}
+</style></head>
+<body>
+<header><div class="wrap">
+<h1>17-MovieLens电影平台 · 数据模型地图</h1>
+<div class="sub">六层数仓全景：层职责 · 表血缘 · 字段字典（点击表卡片展开）—— 由 warehouse.db 确定性生成，零 token</div>
+<div class="stats">
+<span>🏗 6 层</span><span>📋 25 表</span><span>🔢 110,942,359 行</span>
+<span>🔗 血缘 36 条</span><span>📂 warehouse.db</span>
+</div></div></header>
+<div class="wrap">
+<div class="card"><h2 style="margin-top:0">层间血缘流</h2>
+<svg class="flowsvg" viewBox="0 0 1142 120" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0, 7 3.5, 0 7" fill="#94a3b8"/></marker></defs>
+<line x1="138" y1="57" x2="184" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/><text x="161.0" y="50" text-anchor="middle" fill="#64748b" font-size="10">4</text><line x1="302" y1="57" x2="348" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/><text x="325.0" y="50" text-anchor="middle" fill="#0d9488" font-size="10">3</text><line x1="466" y1="57" x2="512" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/><line x1="630" y1="57" x2="676" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/><text x="653.0" y="50" text-anchor="middle" fill="#7c3aed" font-size="10">2</text><line x1="794" y1="57" x2="840" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/><text x="817.0" y="50" text-anchor="middle" fill="#d97706" font-size="10">6</text><line x1="958" y1="57" x2="1004" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/><text x="981.0" y="50" text-anchor="middle" fill="#16a34a" font-size="10">8</text><path d="M243.0,28 C243.0,6 571.0,6 571.0,28" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/><text x="407.0" y="12" text-anchor="middle" fill="#2563eb" font-size="10">2 跳层</text><path d="M407.0,28 C407.0,6 735.0,6 735.0,28" fill="none" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/><text x="571.0" y="12" text-anchor="middle" fill="#7c3aed" font-size="10">2 跳层</text><path d="M407.0,28 C407.0,6 899.0,6 899.0,28" fill="none" stroke="#d97706" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/><text x="653.0" y="12" text-anchor="middle" fill="#d97706" font-size="10">1 跳层</text><path d="M407.0,28 C407.0,6 1063.0,6 1063.0,28" fill="none" stroke="#16a34a" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/><text x="735.0" y="12" text-anchor="middle" fill="#16a34a" font-size="10">3 跳层</text><g transform="translate(20,30)"><rect width="118" height="54" rx="10" fill="#94a3b8"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">源库</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">只读挂载 · 4表</text></g><g transform="translate(184,30)"><rect width="118" height="54" rx="10" fill="#64748b"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">ODS</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">复印件 · 4表</text></g><g transform="translate(348,30)"><rect width="118" height="54" rx="10" fill="#0d9488"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">DIM</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">户口本 · 5表</text></g><g transform="translate(512,30)"><rect width="118" height="54" rx="10" fill="#2563eb"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">DWD</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">贴标签 · 2表</text></g><g transform="translate(676,30)"><rect width="118" height="54" rx="10" fill="#7c3aed"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">DWM</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">加列不翻表 · 2表</text></g><g transform="translate(840,30)"><rect width="118" height="54" rx="10" fill="#d97706"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">DWS</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">算了一半 · 7表</text></g><g transform="translate(1004,30)"><rect width="118" height="54" rx="10" fill="#16a34a"/><text x="59.0" y="24" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">ADS</text><text x="59.0" y="42" text-anchor="middle" fill="#fff" font-size="10" opacity=".9">最终答案 · 5表</text></g>
+</svg>
+<div style="font-size:11.5px;color:var(--sub)">直线=相邻层血缘（数字为表间引用数）；虚线弧=跳层血缘；源库以只读挂载（src），ODS 一个字不改照搬。</div></div>
+<h2>六层泳道 · 点击表卡片看字段字典</h2>
+<div class="lanes"><div class="lane" style="--lc:#64748b">
+<div class="lane-head"><div class="lane-name">ODS 原始层</div>
+<div class="lane-duty">原样照搬源表，一个字不改</div><div class="lane-meta">复印件 · 4 表</div></div>
+<details class="tcard" id="tbl-ods_ratings">
+<summary><b class="tname">ods_ratings</b>
+<span class="trows">33,832,162 行</span>
+<span class="tremark">评分记录（源 33,832,162 行）</span></summary>
+<div class="tbody">
+<div class="meta">主键：无（ODS 原样照搬）</div>
+<div class="meta">上游：<span class="chip src">src.ratings</span></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>userId</code></td><td>INTEGER</td><td>用户编号</td></tr><tr><td><code>movieId</code></td><td>INTEGER</td><td>电影编号</td></tr><tr><td><code>rating</code></td><td>REAL</td><td>星级 0.5~5.0 半星一档（已验证无越界）</td></tr><tr><td><code>timestamp</code></td><td>INTEGER</td><td>评分时间（1970 起累计秒数，UTC 换算，见口径卡自主决策#1）</td></tr></table>
+</div></details><details class="tcard" id="tbl-ods_tags">
+<summary><b class="tname">ods_tags</b>
+<span class="trows">2,328,315 行</span>
+<span class="tremark">用户标签（源 2,328,315 行）</span></summary>
+<div class="tbody">
+<div class="meta">主键：无（ODS 原样照搬）</div>
+<div class="meta">上游：<span class="chip src">src.tags</span></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>userId</code></td><td>INTEGER</td><td>用户编号</td></tr><tr><td><code>movieId</code></td><td>INTEGER</td><td>电影编号</td></tr><tr><td><code>tag</code></td><td>TEXT</td><td>标签原文（自由文本，大小写/空格混乱）</td></tr><tr><td><code>timestamp</code></td><td>INTEGER</td><td>打标签时间（1970 起累计秒数）</td></tr></table>
+</div></details><details class="tcard" id="tbl-ods_movies">
+<summary><b class="tname">ods_movies</b>
+<span class="trows">86,537 行</span>
+<span class="tremark">电影档案（源 86,537 行）</span></summary>
+<div class="tbody">
+<div class="meta">主键：无（ODS 原样照搬）</div>
+<div class="meta">上游：<span class="chip src">src.movies</span></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movieId</code></td><td>INTEGER</td><td>电影编号（源表无主键，ODS 按纪律不加）</td></tr><tr><td><code>title</code></td><td>TEXT</td><td>片名（内嵌年份，如 'Toy Story (1995)'）</td></tr><tr><td><code>genres</code></td><td>TEXT</td><td>类型，竖线分隔多值（如 'Action|Sci-Fi'；无类型为 '(no genres listed)'）</td></tr></table>
+</div></details><details class="tcard" id="tbl-ods_links">
+<summary><b class="tname">ods_links</b>
+<span class="trows">86,537 行</span>
+<span class="tremark">外部网站链接（源 86,537 行；映射表按纪律归 ODS 原样保留，为未来电影详情页铺垫）</span></summary>
+<div class="tbody">
+<div class="meta">主键：无（ODS 原样照搬）</div>
+<div class="meta">上游：<span class="chip src">src.links</span></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movieId</code></td><td>INTEGER</td><td>电影编号（与 ods_movies 一一对应）</td></tr><tr><td><code>imdbId</code></td><td>INTEGER</td><td>IMDb 编号（无空值）</td></tr><tr><td><code>tmdbId</code></td><td>INTEGER</td><td>TMDB 编号（126 部为空，不补）</td></tr></table>
+</div></details></div><div class="lane" style="--lc:#0d9488">
+<div class="lane-head"><div class="lane-name">DIM 维表层</div>
+<div class="lane-duty">加工维表，映射修正</div><div class="lane-meta">户口本 · 5 表</div></div>
+<details class="tcard" id="tbl-dim_user">
+<summary><b class="tname">dim_user</b>
+<span class="trows">330,975 行</span>
+<span class="tremark">2.5 用户维表（330,975 人；仅存描述性信息，不存任何算出来的指标）</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-ods_ratings">ods_ratings</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>first_rating_date_key</code></td><td>INTEGER</td><td>首次评分日（描述性）</td></tr><tr><td><code>last_rating_date_key</code></td><td>INTEGER</td><td>最近评分日（描述性）</td></tr></table>
+</div></details><details class="tcard" id="tbl-dim_movie_genre">
+<summary><b class="tname">dim_movie_genre</b>
+<span class="trows">145,228 行</span>
+<span class="tremark">2.4 电影×类型桥表（多值类型展开：一部挂 N 个类型就 N 行，共 145,228 行）</span></summary>
+<div class="tbody">
+<div class="meta">主键：movie_id、genre_code</div>
+<div class="meta">上游：<a class="chip" href="#tbl-ods_movies">ods_movies</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>genre_code</code></td><td>TEXT</td><td>🔑 </td></tr></table>
+</div></details><details class="tcard" id="tbl-dim_movie">
+<summary><b class="tname">dim_movie</b>
+<span class="trows">86,537 行</span>
+<span class="tremark">2.2 电影维表（源 86,537 部；年份从片名末尾括号提取，85,917 部可提取，620 部留空）</span></summary>
+<div class="tbody">
+<div class="meta">主键：movie_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-ods_movies">ods_movies</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>title_raw</code></td><td>TEXT</td><td>原始片名（含年份）</td></tr><tr><td><code>title_clean</code></td><td>TEXT</td><td>去掉末尾年份的片名</td></tr><tr><td><code>release_year</code></td><td>INTEGER</td><td>上映年份（620 部提不出为 NULL）</td></tr><tr><td><code>genres_raw</code></td><td>TEXT</td><td>原始类型串（竖线分隔）</td></tr><tr><td><code>genre_cnt</code></td><td>INTEGER</td><td>类型个数（无类型=0）</td></tr><tr><td><code>is_no_genre</code></td><td>INTEGER</td><td>1=无类型（'(no genres listed)'，共 7,060 部）</td></tr></table>
+</div></details><details class="tcard" id="tbl-dim_date">
+<summary><b class="tname">dim_date</b>
+<span class="trows">10,592 行</span>
+<span class="tremark">2.1 日历维表（1995-01-01 ~ 2023-12-31，覆盖全部评分/标签日期）</span></summary>
+<div class="tbody">
+<div class="meta">主键：date_key</div>
+<div class="meta">上游：源库</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>date_key</code></td><td>INTEGER</td><td>🔑 yyyymmdd，如 19950109</td></tr><tr><td><code>date_iso</code></td><td>TEXT</td><td>'YYYY-MM-DD'</td></tr><tr><td><code>year</code></td><td>INTEGER</td><td></td></tr><tr><td><code>month</code></td><td>INTEGER</td><td></td></tr><tr><td><code>quarter</code></td><td>INTEGER</td><td>1~4</td></tr><tr><td><code>day_of_week</code></td><td>INTEGER</td><td>0=周日 … 6=周六</td></tr><tr><td><code>is_weekend</code></td><td>INTEGER</td><td>1/0</td></tr><tr><td><code>year_month</code></td><td>TEXT</td><td>'YYYY-MM'</td></tr></table>
+</div></details><details class="tcard" id="tbl-dim_genre">
+<summary><b class="tname">dim_genre</b>
+<span class="trows">19 行</span>
+<span class="tremark">2.3 类型维表（19 种类型 + 中文对照，便于汇报阅读；中文对照为 AI 自主决策#7）</span></summary>
+<div class="tbody">
+<div class="meta">主键：genre_code</div>
+<div class="meta">上游：源库</div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>genre_code</code></td><td>TEXT</td><td>🔑 </td></tr><tr><td><code>genre_cn</code></td><td>TEXT</td><td></td></tr></table>
+</div></details></div><div class="lane" style="--lc:#2563eb">
+<div class="lane-head"><div class="lane-name">DWD 明细层</div>
+<div class="lane-duty">打判定标签，口径只写一次（0/1）</div><div class="lane-meta">贴标签 · 2 表</div></div>
+<details class="tcard" id="tbl-dwd_rating_fact">
+<summary><b class="tname">dwd_rating_fact</b>
+<span class="trows">33,832,162 行</span>
+<span class="tremark">3.1 评分事实表（33,832,162 行；一人一影不重复，(user_id, movie_id) 唯一）</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id、movie_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-ods_ratings">ods_ratings</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating</code></td><td>REAL</td><td>星级原值 0.5~5.0</td></tr><tr><td><code>rating_ts</code></td><td>INTEGER</td><td>原始秒级时间戳</td></tr><tr><td><code>rating_date_key</code></td><td>INTEGER</td><td>yyyymmdd（UTC 换算）</td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>年份（UTC）</td></tr><tr><td><code>is_high_rating</code></td><td>INTEGER</td><td>好评判定标签：rating >= 4.5 → 1（口径卡2，全仓唯一定义处）</td></tr></table>
+</div></details><details class="tcard" id="tbl-dwd_tag_fact">
+<summary><b class="tname">dwd_tag_fact</b>
+<span class="trows">2,328,315 行</span>
+<span class="tremark">3.2 标签事实表（2,328,315 行；四字段联合唯一已验证）</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id、movie_id、tag_raw、tag_ts</div>
+<div class="meta">上游：<a class="chip" href="#tbl-ods_tags">ods_tags</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>tag_raw</code></td><td>TEXT</td><td>🔑 标签原文</td></tr><tr><td><code>tag_norm</code></td><td>TEXT</td><td>归一化标签（小写+去空格+压空格；只合并写法不合并意思）</td></tr><tr><td><code>tag_ts</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>tag_date_key</code></td><td>INTEGER</td><td></td></tr><tr><td><code>tag_year</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details></div><div class="lane" style="--lc:#7c3aed">
+<div class="lane-head"><div class="lane-name">DWM 拉宽层</div>
+<div class="lane-duty">只加列不聚合，补齐维度</div><div class="lane-meta">加列不翻表 · 2 表</div></div>
+<details class="tcard" id="tbl-dwm_rating_wide">
+<summary><b class="tname">dwm_rating_wide</b>
+<span class="trows">33,832,162 行</span>
+<span class="tremark">4.1 评分宽表（33,832,162 行 = dwd_rating_fact 行数；补电影维信息）</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id、movie_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dim_movie">dim_movie</a><a class="chip" href="#tbl-dwd_rating_fact">dwd_rating_fact</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating</code></td><td>REAL</td><td></td></tr><tr><td><code>rating_ts</code></td><td>INTEGER</td><td></td></tr><tr><td><code>rating_date_key</code></td><td>INTEGER</td><td></td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td></td></tr><tr><td><code>is_high_rating</code></td><td>INTEGER</td><td>口径标签随行携带（来自 DWD，不重复定义）</td></tr><tr><td><code>title_clean</code></td><td>TEXT</td><td>电影名（去年份）</td></tr><tr><td><code>release_year</code></td><td>INTEGER</td><td>上映年份</td></tr><tr><td><code>genre_cnt</code></td><td>INTEGER</td><td>该电影类型个数</td></tr><tr><td><code>is_no_genre</code></td><td>INTEGER</td><td>1=无类型电影（类型分析剔除，口径卡5）</td></tr></table>
+</div></details><details class="tcard" id="tbl-dwm_tag_wide">
+<summary><b class="tname">dwm_tag_wide</b>
+<span class="trows">2,328,315 行</span>
+<span class="tremark">4.2 标签宽表（2,328,315 行 = dwd_tag_fact 行数；补电影维信息）</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id、movie_id、tag_raw、tag_ts</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dim_movie">dim_movie</a><a class="chip" href="#tbl-dwd_tag_fact">dwd_tag_fact</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>tag_raw</code></td><td>TEXT</td><td>🔑 </td></tr><tr><td><code>tag_norm</code></td><td>TEXT</td><td></td></tr><tr><td><code>tag_ts</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>tag_date_key</code></td><td>INTEGER</td><td></td></tr><tr><td><code>tag_year</code></td><td>INTEGER</td><td></td></tr><tr><td><code>title_clean</code></td><td>TEXT</td><td></td></tr><tr><td><code>release_year</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details></div><div class="lane" style="--lc:#d97706">
+<div class="lane-head"><div class="lane-name">DWS 汇总层</div>
+<div class="lane-duty">按粒度聚合，只存整数不存率</div><div class="lane-meta">算了一半 · 7 表</div></div>
+<details class="tcard" id="tbl-dws_movie_year_rating_stats">
+<summary><b class="tname">dws_movie_year_rating_stats</b>
+<span class="trows">485,459 行</span>
+<span class="tremark">5.2 电影×年份粒度</span></summary>
+<div class="tbody">
+<div class="meta">主键：movie_id、rating_year</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dwm_rating_wide">dwm_rating_wide</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>high_rating_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>rating_sum</code></td><td>REAL</td><td></td></tr></table>
+</div></details><details class="tcard" id="tbl-dws_user_year_rating_stats">
+<summary><b class="tname">dws_user_year_rating_stats</b>
+<span class="trows">443,708 行</span>
+<span class="tremark">rating_cnt_same_period 用 date_key 后四位（mmdd）落窗，101~720 即 0101~0720</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id、rating_year</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dwm_rating_wide">dwm_rating_wide</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td>当年全部评分条数</td></tr><tr><td><code>rating_cnt_same_period</code></td><td>INTEGER</td><td>当年 1/1~7/20 窗口条数（口径卡6）</td></tr><tr><td><code>high_rating_cnt</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details><details class="tcard" id="tbl-dws_user_rating_stats">
+<summary><b class="tname">dws_user_rating_stats</b>
+<span class="trows">330,975 行</span>
+<span class="tremark">5.3 用户粒度（330,975 人）</span></summary>
+<div class="tbody">
+<div class="meta">主键：user_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dwm_rating_wide">dwm_rating_wide</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>user_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>high_rating_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>rating_sum</code></td><td>REAL</td><td></td></tr><tr><td><code>first_rating_date_key</code></td><td>INTEGER</td><td></td></tr><tr><td><code>last_rating_date_key</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details><details class="tcard" id="tbl-dws_tag_stats">
+<summary><b class="tname">dws_tag_stats</b>
+<span class="trows">143,259 行</span>
+<span class="tremark">5.7 标签粒度（归一后 143,285 词；口径卡7）</span></summary>
+<div class="tbody">
+<div class="meta">主键：tag_norm</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dwm_tag_wide">dwm_tag_wide</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>tag_norm</code></td><td>TEXT</td><td>🔑 </td></tr><tr><td><code>tag_cnt</code></td><td>INTEGER</td><td>被使用次数</td></tr><tr><td><code>user_cnt</code></td><td>INTEGER</td><td>使用过的用户数</td></tr><tr><td><code>movie_cnt</code></td><td>INTEGER</td><td>覆盖电影数</td></tr></table>
+</div></details><details class="tcard" id="tbl-dws_movie_rating_stats">
+<summary><b class="tname">dws_movie_rating_stats</b>
+<span class="trows">83,239 行</span>
+<span class="tremark">5.1 电影粒度（83,239 部被评过的电影；3,298 部零评分电影无事实行，不进本表）</span></summary>
+<div class="tbody">
+<div class="meta">主键：movie_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dwm_rating_wide">dwm_rating_wide</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td>分母：评分条数（口径卡1：热度）</td></tr><tr><td><code>high_rating_cnt</code></td><td>INTEGER</td><td>分子：好评条数（口径卡2：>=4.5）</td></tr><tr><td><code>rating_sum</code></td><td>REAL</td><td>平均分分子（口径卡8）</td></tr><tr><td><code>first_rating_date_key</code></td><td>INTEGER</td><td></td></tr><tr><td><code>last_rating_date_key</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details><details class="tcard" id="tbl-dws_genre_year_rating_stats">
+<summary><b class="tname">dws_genre_year_rating_stats</b>
+<span class="trows">539 行</span>
+<span class="tremark">5.5 类型×年份粒度（口径卡5：桥表展开计数；从 5.2 上卷，不重扫明细）</span></summary>
+<div class="tbody">
+<div class="meta">主键：genre_code、rating_year</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dim_movie_genre">dim_movie_genre</a><a class="chip" href="#tbl-dws_movie_year_rating_stats">dws_movie_year_rating_stats</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>genre_code</code></td><td>TEXT</td><td>🔑 </td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td>该类型当年评分条数（一片多类型各计一次）</td></tr><tr><td><code>high_rating_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>rating_sum</code></td><td>REAL</td><td></td></tr></table>
+</div></details><details class="tcard" id="tbl-dws_rating_value_year_stats">
+<summary><b class="tname">dws_rating_value_year_stats</b>
+<span class="trows">248 行</span>
+<span class="tremark">5.6 星级×年份粒度（评分分布的分子，口径卡9）</span></summary>
+<div class="tbody">
+<div class="meta">主键：rating_value、rating_year</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dwm_rating_wide">dwm_rating_wide</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>rating_value</code></td><td>REAL</td><td>🔑 0.5~5.0 共 10 档</td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details></div><div class="lane" style="--lc:#16a34a">
+<div class="lane-head"><div class="lane-name">ADS 应用层</div>
+<div class="lane-duty">算率+排名，薄层</div><div class="lane-meta">最终答案 · 5 表</div></div>
+<details class="tcard" id="tbl-ads_tag_top">
+<summary><b class="tname">ads_tag_top</b>
+<span class="trows">143,259 行</span>
+<span class="tremark">6.5 标签榜（口径卡7：归一后使用次数；全量排名，汇报取 Top 20）</span></summary>
+<div class="tbody">
+<div class="meta">主键：tag_norm</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dws_tag_stats">dws_tag_stats</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>tag_norm</code></td><td>TEXT</td><td>🔑 </td></tr><tr><td><code>tag_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>user_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>movie_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>usage_rank</code></td><td>INTEGER</td><td></td></tr></table>
+</div></details><details class="tcard" id="tbl-ads_movie_popularity_rank">
+<summary><b class="tname">ads_movie_popularity_rank</b>
+<span class="trows">83,239 行</span>
+<span class="tremark">6.1 电影热度/好评榜（口径卡1 热度=评分条数；口径卡3 好评榜门槛>=1000）</span></summary>
+<div class="tbody">
+<div class="meta">主键：movie_id</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dim_movie">dim_movie</a><a class="chip" href="#tbl-dws_movie_rating_stats">dws_movie_rating_stats</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>movie_id</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>title</code></td><td>TEXT</td><td></td></tr><tr><td><code>release_year</code></td><td>INTEGER</td><td></td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td>热度（评分人数）</td></tr><tr><td><code>avg_rating</code></td><td>REAL</td><td>平均分（两位展示，此处存 4 位）</td></tr><tr><td><code>high_rating_rate</code></td><td>REAL</td><td>好评率 = high_cnt / cnt（>=4.5，口径卡2）</td></tr><tr><td><code>popularity_rank</code></td><td>INTEGER</td><td>热度排名（按评分人数降序）</td></tr><tr><td><code>good_movie_rank</code></td><td>INTEGER</td><td>好评率排名（仅 rating_cnt>=1000 参与，其余 NULL）</td></tr></table>
+</div></details><details class="tcard" id="tbl-ads_genre_trend">
+<summary><b class="tname">ads_genre_trend</b>
+<span class="trows">539 行</span>
+<span class="tremark">6.4 类型趋势（口径卡5：展开计数、无类型剔除；份额分母=当年落在有类型电影上的评分）</span></summary>
+<div class="tbody">
+<div class="meta">主键：genre_code、rating_year</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dim_genre">dim_genre</a><a class="chip" href="#tbl-dim_movie_genre">dim_movie_genre</a><a class="chip" href="#tbl-dws_genre_year_rating_stats">dws_genre_year_rating_stats</a><a class="chip" href="#tbl-dws_movie_year_rating_stats">dws_movie_year_rating_stats</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>genre_code</code></td><td>TEXT</td><td>🔑 </td></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>genre_cn</code></td><td>TEXT</td><td></td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td>该类型当年评分条数（展开计数）</td></tr><tr><td><code>share_pct</code></td><td>REAL</td><td>份额 = 该类型条数 / 当年有类型电影评分总数</td></tr><tr><td><code>high_rating_rate</code></td><td>REAL</td><td>该类型当年好评率</td></tr><tr><td><code>avg_rating</code></td><td>REAL</td><td>该类型当年平均分</td></tr></table>
+</div></details><details class="tcard" id="tbl-ads_year_overview">
+<summary><b class="tname">ads_year_overview</b>
+<span class="trows">29 行</span>
+<span class="tremark">6.2 年度总览（活跃用户口径卡4：>=10 条；同期对比口径卡6：1/1~7/20）</span></summary>
+<div class="tbody">
+<div class="meta">主键：rating_year</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dws_movie_year_rating_stats">dws_movie_year_rating_stats</a><a class="chip" href="#tbl-dws_user_rating_stats">dws_user_rating_stats</a><a class="chip" href="#tbl-dws_user_year_rating_stats">dws_user_year_rating_stats</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>rating_year</code></td><td>INTEGER</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td>当年评分条数</td></tr><tr><td><code>avg_rating</code></td><td>REAL</td><td>当年平均分</td></tr><tr><td><code>high_rating_rate</code></td><td>REAL</td><td>当年好评率（>=4.5）</td></tr><tr><td><code>users_ge1_full</code></td><td>INTEGER</td><td>当年>=1条用户数（参考值）</td></tr><tr><td><code>active_user_cnt</code></td><td>INTEGER</td><td>活跃用户（当年>=10条，口径卡4）</td></tr><tr><td><code>active_user_cnt_same_period</code></td><td>INTEGER</td><td>活跃用户（当年1/1~7/20窗口>=10条，口径卡6）</td></tr><tr><td><code>new_user_cnt</code></td><td>INTEGER</td><td>首次评分落在当年的用户数</td></tr></table>
+</div></details><details class="tcard" id="tbl-ads_rating_distribution">
+<summary><b class="tname">ads_rating_distribution</b>
+<span class="trows">10 行</span>
+<span class="tremark">6.3 评分分布（口径卡9：全时段 10 档条数与占比）</span></summary>
+<div class="tbody">
+<div class="meta">主键：rating_value</div>
+<div class="meta">上游：<a class="chip" href="#tbl-dws_rating_value_year_stats">dws_rating_value_year_stats</a></div>
+<table><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td><code>rating_value</code></td><td>REAL</td><td>🔑 </td></tr><tr><td><code>rating_cnt</code></td><td>INTEGER</td><td></td></tr><tr><td><code>pct</code></td><td>REAL</td><td>占比 = 该档条数 / 全部条数</td></tr></table>
+</div></details></div></div>
+
+<footer>数据模型地图 · 2026-09-24 14:14 生成 · python scripts/render_model_map.py &lt;案例目录&gt;<br>
+口径与分层纪律见 artifacts/口径卡.md · 验证见 build/verify_output.log</footer>
+</div></body></html>
