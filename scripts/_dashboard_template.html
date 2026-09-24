@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>__TITLE__</title>
+<style>
+:root{--canvas:#f5f6f7;--surface:#fff;--ink:#1f2329;--sub:#646a73;--mute:#8f959e;--faint:#aeb4bd;
+--bd:rgba(16,24,40,.07);--bd2:#dee0e3;--split:#eff0f2;--layer:#f2f3f5;
+--blue:#1456f0;--teal:#00a6a6;--purple:#722ed1;--amber:#ff7d00;
+--ok-txt:#35BD4B;--ok-bg:rgba(53,189,75,.10);--bad-txt:#F54A45;--bad-bg:rgba(245,74,69,.10);
+--sh:0 1px 3px 0 rgba(31,35,41,.08),0 4px 8px -4px rgba(31,35,41,.08),0 6px 16px -4px rgba(31,35,41,.10);
+--sh-h:0 8px 24px -8px rgba(31,35,41,.12),0 4px 12px -4px rgba(31,35,41,.08);
+--ease:cubic-bezier(.4,0,.2,1);--bd:rgba(16,24,40,.07);--bd2:#dee0e3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Inter","Microsoft YaHei",system-ui,sans-serif;background:var(--canvas);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:13px}
+.page{max-width:1560px;margin:0 auto;padding:28px 24px 36px}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.phead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.phead h1{font-size:21px;font-weight:650;letter-spacing:-.02em}
+.psub{font-size:11.5px;color:var(--faint);font-weight:400}
+.segctl{display:inline-flex;padding:3px;border-radius:999px;background:rgba(16,24,40,.05);box-shadow:inset 0 0 0 1px rgba(16,24,40,.05)}
+.segctl button{height:30px;padding:0 18px;border:0;border-radius:999px;background:transparent;color:var(--sub);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .18s var(--ease)}
+.segctl button:hover{color:var(--ink)}
+.segctl button.active{background:linear-gradient(180deg,#2f6bff,#1456f0);color:#fff;box-shadow:0 3px 10px -2px rgba(20,86,240,.55),inset 0 1px 0 rgba(255,255,255,.25)}
+.dirleg{font-size:11.5px;color:var(--faint)}
+.fullscreen-btn{position:absolute;top:24px;right:24px;height:30px;padding:0 14px;border:1px solid var(--bd2);border-radius:999px;background:var(--surface);color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;transition:all .18s var(--ease);box-shadow:var(--sh)}
+.fullscreen-btn:hover{background:linear-gradient(180deg,#2f6bff,#1456f0);color:#fff;border-color:transparent}
+.dirleg b.up{color:#1456f0}.dirleg b.down{color:#ff7d00}
+.warnchip{position:relative;display:inline-flex;align-items:center;height:19px;padding:0 8px;border-radius:999px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:10.5px;font-weight:600;cursor:help;flex-shrink:0}
+.warnchip .wpop{display:none;position:absolute;top:26px;right:0;z-index:40;width:250px;background:#fffbf0;border:1px solid #fde68a;border-radius:10px;padding:9px 12px;font-size:11.5px;font-weight:500;color:#92400e;line-height:1.6;box-shadow:0 8px 20px rgba(16,24,40,.09);text-align:left}
+.warnchip:hover .wpop{display:block}
+.crumb{display:none;align-items:center;gap:8px;margin-bottom:14px;font-size:13px}
+.crumb button{border:1px solid var(--bd2);background:#fff;border-radius:9px;padding:3px 12px;cursor:pointer;font-size:12.5px;color:var(--blue);font-weight:600}
+.crumb .cur{color:var(--ink);font-weight:600}
+.view{display:none}
+.view.on{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:16px;margin-bottom:20px}
+.kpi{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:16px 18px 14px;background:var(--surface);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7);cursor:pointer;overflow:hidden;transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s var(--ease)}
+.kpi::before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;top:-100px;right:-60px;background:radial-gradient(circle,rgba(20,86,240,.05),transparent 65%);pointer-events:none}
+.kpi.dir-down::before{background:radial-gradient(circle,rgba(255,125,0,.05),transparent 65%)}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh-h),inset 0 1px 0 rgba(255,255,255,.8);border-color:rgba(16,24,40,.12)}
+.ktop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.kname{font-size:13px;font-weight:600;color:var(--sub);line-height:1.4;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kico{width:26px;height:26px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(255,255,255,.35),0 3px 8px -2px rgba(16,24,40,.12)}
+.kico.up{background:linear-gradient(135deg,rgba(20,86,240,.16),rgba(20,86,240,.05));color:var(--blue)}
+.kico.down{background:linear-gradient(135deg,rgba(255,125,0,.18),rgba(255,125,0,.05));color:var(--amber)}
+.kmain{display:flex;align-items:flex-end;gap:10px}
+.kval{font-size:34px;font-weight:700;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kval small{font-size:13px;font-weight:600;color:var(--faint);margin-left:3px}
+.mom{font-size:10.5px;font-weight:650;padding:2px 6px;border-radius:999px;font-variant-numeric:tabular-nums;flex:none;white-space:nowrap}
+.mom.good{color:#35BD4B;background:rgba(53,189,75,.10);box-shadow:inset 0 0 0 1px rgba(53,189,75,.20)}
+.mom.bad{color:#F54A45;background:rgba(245,74,69,.10);box-shadow:inset 0 0 0 1px rgba(245,74,69,.20)}
+.mom.flat{color:var(--sub);background:rgba(16,24,40,.05);box-shadow:inset 0 0 0 1px rgba(16,24,40,.08)}
+.kfrac{font-size:11.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:18px;flex-shrink:0}
+.kfrac b{color:var(--sub);font-weight:650}
+.kspark{min-height:40px;display:flex;align-items:flex-end}
+.kfoot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border-top:1px dashed var(--bd2);padding-top:9px;min-height:32px}
+.drillhint{font-size:11px;color:var(--faint);transition:color .18s;white-space:nowrap}
+.kpi:hover .drillhint{color:var(--blue)}
+.spark{height:40px;width:100%}
+.panel{background:var(--surface);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7);padding:18px 22px 16px;position:relative;overflow:hidden}
+.phead2{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.ptitle{font-size:13.5px;font-weight:650;letter-spacing:-.01em;color:#3b4356;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.psub2{font-size:11.5px;color:var(--faint);font-weight:400}
+.duo{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(320px,1fr);gap:16px;margin-bottom:20px}
+.chart{width:100%;height:100%;min-height:0}
+.caltip{position:relative;cursor:help;font-size:11px;font-weight:500;color:var(--blue);background:#eaf0ff;border-radius:999px;padding:2px 10px;flex-shrink:0}
+.calpop{display:none;position:absolute;top:26px;left:0;z-index:99;width:360px;background:#fff;color:var(--ink);border:1px solid var(--bd2);border-radius:12px;padding:14px 16px;font-size:12px;font-weight:400;line-height:1.9;box-shadow:0 12px 32px rgba(16,24,40,.16);text-align:left}
+.caltip:hover .calpop{display:block}
+.calpop b{color:var(--blue)}
+.board{display:grid;grid-template-columns:repeat(24,1fr);grid-auto-rows:44px;gap:12px;margin-bottom:18px}
+.cell{background:var(--surface);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7);padding:14px 16px;position:relative;display:flex;flex-direction:column;overflow:hidden;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
+.cell:hover{transform:translateY(-2px);box-shadow:var(--sh-h),inset 0 1px 0 rgba(255,255,255,.8)}
+.cell .ptitle{font-size:14.5px;font-weight:650;letter-spacing:-.01em;margin-bottom:2px;flex-shrink:0}
+.cell .cbody{flex:1;min-height:0;overflow:auto}
+.l2sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:22px}
+.sumc{position:relative;border:1px solid var(--bd);border-radius:12px;padding:14px 16px 12px;background:var(--surface);box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7);display:flex;flex-direction:column;gap:3px}
+.sumc::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:0 4px 4px 0;background:linear-gradient(180deg,#1456f0,#6d9bff)}
+.sumc .sumv{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--ink)}
+.sumc .suml{font-size:11.5px;font-weight:600;color:var(--mute)}
+.scard{position:relative;border:1px solid var(--bd);border-radius:12px;padding:18px 18px 16px 22px;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;gap:8px;background:var(--surface);box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s var(--ease)}
+.scard:hover{transform:translateY(-2px);box-shadow:var(--sh-h),inset 0 1px 0 rgba(255,255,255,.8);border-color:rgba(16,24,40,.12)}
+.scard .bar{position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0}
+.scard .sl{font-size:12.5px;font-weight:600;color:var(--sub)}
+.scard .sv{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}
+.scard .sv small{font-size:13px;font-weight:500;color:var(--faint);margin-left:2px}
+.sc-blue{background:linear-gradient(135deg,rgba(20,86,240,.08),rgba(20,86,240,0) 55%),#fff}
+.sc-blue .bar{background:linear-gradient(180deg,#1456f0,#6d9bff)}.sc-blue .sv{color:#1456f0}
+.sc-teal{background:linear-gradient(135deg,rgba(0,166,166,.08),rgba(0,166,166,0) 55%),#fff}
+.sc-teal .bar{background:linear-gradient(180deg,#00a6a6,#5fd6d0)}.sc-teal .sv{color:#00a6a6}
+.sc-purple{background:linear-gradient(135deg,rgba(114,46,209,.08),rgba(114,46,209,0) 55%),#fff}
+.sc-purple .bar{background:linear-gradient(180deg,#722ed1,#b08aed)}.sc-purple .sv{color:#722ed1}
+.sc-gray{background:linear-gradient(135deg,rgba(134,144,156,.1),rgba(134,144,156,0) 55%),#fff}
+.sc-gray .bar{background:linear-gradient(180deg,#86909c,#c3cad2)}.sc-gray .sv{color:#5b6470}
+.dcard{background:var(--surface);border:1px solid var(--bd);border-radius:12px;overflow:hidden;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7);transition:box-shadow .18s var(--ease)}
+.dcard:hover{box-shadow:var(--sh-h),inset 0 1px 0 rgba(255,255,255,.8)}
+.dhead{display:flex;align-items:center;gap:12px;padding:15px 20px;cursor:pointer;user-select:none;transition:background .15s}
+.dhead:hover{background:rgba(16,24,40,.02)}
+.dchev{width:22px;height:22px;border-radius:7px;background:rgba(16,24,40,.05);color:var(--sub);transition:transform .22s var(--ease),background .18s,color .18s;display:flex;align-items:center;justify-content:center}
+.dcard[open] .dchev{transform:rotate(90deg);background:rgba(20,86,240,.1);color:var(--blue)}
+.dcard summary{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .15s;font-size:13px;font-weight:650;color:var(--ink);list-style:none}
+.dcard summary::-webkit-details-marker{display:none}
+.dcard summary:hover{background:rgba(16,24,40,.02)}
+.dimbody{padding:0 12px 14px}
+/* L2 多维分解：维度分段控件 + 摘要 chips + 恒定高度单表区 */
+.dimpanel{margin-top:2px}
+.dimbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.dimseg button{height:28px;padding:0 14px}
+.dimsum{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sumchip{font-size:11px;font-weight:600;color:var(--sub);background:rgba(16,24,40,.045);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dimtablewrap{height:420px;overflow:auto;border:1px solid var(--bd);border-radius:12px;background:var(--surface);box-shadow:var(--sh)}
+.dimtablewrap table{border:0}
+.dimtbl td.num-r{text-align:right}
+.dimtbl td{cursor:default}
+.l3hero{position:relative;overflow:hidden;border-radius:12px;padding:22px 26px;margin-bottom:14px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.7)}
+.l3hero.h-du{border-color:rgba(20,86,240,.2);background:linear-gradient(135deg,rgba(20,86,240,.07),var(--surface))}
+.l3hero.h-dd{border-color:rgba(255,125,0,.2);background:linear-gradient(135deg,rgba(255,125,0,.07),var(--surface))}
+.l3hero .hv{font-size:44px;font-weight:700;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.l3hero .hv.du{color:var(--blue)}.l3hero .hv.dd{color:var(--amber)}
+.l3hero .hn{font-size:14px;color:var(--sub)}
+.chips{margin-bottom:12px}
+.chip{font-size:12px;font-weight:600;padding:5px 14px;border-radius:999px;border:0;color:var(--sub);background:rgba(255,255,255,.65);box-shadow:inset 0 0 0 1px rgba(16,24,40,.09),inset 0 1px 0 rgba(255,255,255,.7);cursor:pointer;transition:all .18s var(--ease)}
+.chip:hover{color:var(--ink);box-shadow:inset 0 0 0 1px rgba(16,24,40,.16),0 2px 6px rgba(16,24,40,.06)}
+.chip.on{background:linear-gradient(180deg,#2f6bff,#1456f0);color:#fff;box-shadow:0 4px 10px -2px rgba(20,86,240,.5),inset 0 1px 0 rgba(255,255,255,.28)}
+.l3chips{margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.l3chips .flabel{font-size:11.5px;color:var(--mute);flex-shrink:0;margin-right:2px}
+.hmwrap{overflow:auto}
+table.hm{border-collapse:separate;border-spacing:0 4px;font-size:11.5px;width:100%}
+.hm th{background:linear-gradient(180deg,#fafbfc,#f6f8fa);padding:6px 10px;border-bottom:1px solid var(--bd2);text-align:center;font-weight:600;font-size:11px;color:var(--mute);white-space:nowrap;position:sticky;top:0;z-index:2}
+.hm td{padding:4px 10px;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:center}
+.hm td.dim{font-weight:600;font-size:12px}
+.hm .cellv{display:inline-flex;align-items:center;justify-content:center;min-width:60px;height:30px;text-align:center;border-radius:8px;padding:0 8px;font-size:11.5px;font-weight:650;transition:transform .15s var(--ease),box-shadow .15s}
+.hm .cellv.g{background:linear-gradient(135deg,rgba(53,189,75,.16),rgba(53,189,75,.05));color:#35BD4B;box-shadow:inset 0 0 0 1px rgba(53,189,75,.22)}
+.hm .cellv.r{background:linear-gradient(135deg,rgba(245,74,69,.16),rgba(245,74,69,.06));color:#F54A45;box-shadow:inset 0 0 0 1px rgba(245,74,69,.26)}
+.hm .cellv.n{background:rgba(16,24,40,.045);color:var(--sub)}
+.hm .cellv:hover{transform:scale(1.12);box-shadow:0 6px 14px rgba(16,24,40,.18);z-index:2;position:relative}
+.rowpill{font-size:10.5px;border-radius:999px;padding:1.5px 9px;font-weight:650;white-space:nowrap}
+.rowpill.ok{background:var(--ok-bg);color:#35BD4B}
+.rowpill.bad{background:var(--bad-bg);color:#F54A45}
+table.dt{width:100%;border-collapse:collapse;font-size:12.5px}
+.dt th{text-align:center;padding:9px 12px;background:#f2f3f5;font-weight:600;font-size:11.5px;color:var(--sub);border-bottom:1px solid #dee0e3;white-space:nowrap;position:sticky;top:0;z-index:2}
+.dt td{padding:9px 12px;border-bottom:1px solid var(--layer);color:var(--sub);font-variant-numeric:tabular-nums;text-align:center}
+.dt td:first-child{color:#1f2329;font-weight:500}
+.dt tbody tr:nth-child(odd) td{background:#fafbfc}
+.dt tbody tr:hover td,.dt tr:hover td{background:rgba(20,86,240,.07)}
+.rank-row{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s var(--ease)}
+.rank-row:hover{background:rgba(20,86,240,.04)}
+.rank-row .rk{flex:none;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:11px;font-weight:650;font-variant-numeric:tabular-nums}
+.rank-row .rmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rank-row .rtop{display:flex;align-items:center;gap:10px}
+.rank-row .rlabel{flex:1;min-width:0;font-size:12.5px;color:#1f2329;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-row .rval{flex:none;font-size:12.5px;font-weight:650;color:#1f2329;font-variant-numeric:tabular-nums;text-align:right}
+.rank-row .rval small{color:#aeb4bd;font-weight:400;font-size:10.5px;margin-left:2px}
+.rank-row .rtrack{height:4px;border-radius:2px;background:var(--layer);overflow:hidden}
+.rank-row .rfill{height:100%;border-radius:2px;transition:width .3s var(--ease)}
+.cell > div[id^="bb_"]{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-evenly;gap:2px}
+.fnl{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-evenly;padding:0 2px}
+.fnl-row{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:10px}
+.fnl-name{font-size:12px;font-weight:600;color:#1f2329;text-align:right;white-space:nowrap}
+.fnl-track{height:24px;border-radius:6px;background:var(--layer);overflow:hidden}
+.fnl-fill{height:100%;border-radius:7px;transition:width .3s var(--ease)}
+.fnl-val{font-size:12px;font-weight:650;color:#1f2329;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fnl-val small{color:#aeb4bd;font-weight:400;font-size:10.5px}
+.fnl-conv{display:flex;align-items:center;gap:5px;font-size:10.5px;color:#aeb4bd;padding-left:86px;margin:-1px 0}
+.fnl-conv b{color:#646a73;font-weight:650;font-variant-numeric:tabular-nums}
+.dt tbody tr:hover td{background:rgba(20,86,240,.07)!important}
+.dt tr.row-bad td{background:linear-gradient(90deg,rgba(245,63,63,.05),rgba(245,63,63,.015))}
+.dt tr.row-bad td:first-child{box-shadow:inset 3px 0 0 #f53f3f}
+.dt tr.row-good td{background:linear-gradient(90deg,rgba(0,180,42,.03),transparent)}
+.dt tr.row-good td:first-child{box-shadow:inset 3px 0 0 rgba(0,180,42,.55)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px;font-size:12px;color:var(--sub)}
+.pager button{border:1px solid var(--bd2);background:var(--surface);border-radius:8px;padding:3px 12px;cursor:pointer;font-size:12px;color:var(--blue);font-weight:600}
+.pager button:disabled{color:var(--faint);cursor:default}
+.caltip{position:relative;cursor:help;font-size:11px;font-weight:500;color:var(--blue);background:#eaf0ff;border-radius:999px;padding:2px 10px;flex-shrink:0}
+.calpop{display:none;position:absolute;top:26px;left:0;z-index:99;width:360px;background:#fff;color:var(--ink);border:1px solid var(--bd2);border-radius:12px;padding:14px 16px;font-size:12px;font-weight:400;line-height:1.9;box-shadow:0 12px 32px rgba(16,24,40,.16);text-align:left}
+.caltip:hover .calpop{display:block}
+.calpop b{color:var(--blue)}
+footer{text-align:center;color:var(--faint);font-size:11.5px;margin-top:30px;padding-top:16px;border-top:1px solid var(--bd2)}
+/* 分区标题：无卡片壳的纯文字组标题（左 4px 主题色竖条，页面灰底直排） */
+.cell-heading{background:none;border:0;box-shadow:none;padding:2px 2px 4px;overflow:visible}
+.cell-heading:hover{transform:none;box-shadow:none}
+.hgroup{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:#1f2329;letter-spacing:-.01em}
+.hbar{flex:none;width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,#2f6bff,#1456f0)}
+/* 卡片内滚动容器吃满剩余高度（表格/热力在限高卡片内滚动，不溢出） */
+.cell > .hmwrap{flex:1;min-height:0}
+/* 响应式断点（布局规则清单 R5.1 定死）：≥1025 二十四列坐标制；752~1024 两列；<752 单列堆叠。
+   两列/单列模式放弃坐标制（grid-row/column 全部 auto），改固定卡高+图表 flex 填充 */
+@media (max-width:1024px){
+  .board{grid-template-columns:repeat(2,1fr);grid-auto-rows:auto}
+  .cell{grid-column:auto!important;grid-row:auto!important;height:320px}
+  .cell .chart{flex:1;min-height:0}
+}
+@media (max-width:752px){
+  .board{grid-template-columns:1fr}
+  .cell{height:320px}
+}
+</style></head>
+<body>
+<div class="page">
+<div class="phead"><h1>__TITLE__</h1><div class="psub">由 ADS 层确定性生成 · 零 token · 口径全部业务拍板 · __GENERATED__</div>
+<button class="fullscreen-btn" id="fsBtn" onclick="toggleFullscreen()" title="点一次原地全屏，再点一次或按 ESC 缩回">⛶ 全屏查看</button></div>
+<div class="domain-tabs"><div class="dirleg">方向配色：<b class="up">蓝 = 越高越好</b>　<b class="down">橙 = 越低越好</b></div></div>
+<div class="crumb" id="crumb"></div>
+<div class="view on" id="v-l1">
+<div class="segctl" id="domSeg" style="display:none;margin-bottom:14px"></div>
+<div class="board" id="board"></div>
+</div>
+<div class="view" id="v-l2">
+<div class="l3hero" id="l2hero"></div>
+<div class="l2sum" id="l2sum"></div>
+<div class="l2sum" id="l2slices" style="display:none"></div>
+<div id="l2dims"></div>
+</div>
+<div class="view" id="v-l3">
+<div class="l3hero" id="l3hero"></div>
+<div class="l3chips" id="l3chips"></div>
+<div class="panel"><div class="phead2"><div class="ptitle" id="l3title" style="font-size:14px;font-weight:600"></div></div><div class="hmwrap" id="l3table"></div></div>
+</div>
+<footer>python render_universal_dashboard.py · 数据 warehouse.db/ADS · 口径 artifacts/口径卡.md · __GENERATED__</footer>
+</div>
+<script>__ECHARTS__</script>
+<script>
+const DATA = __DATA__;
+const fmt = v => v==null ? "—" : (typeof v==="number" ? (Number.isInteger(v)? v.toLocaleString() : v.toLocaleString(undefined,{maximumFractionDigits:2})) : v);
+const fmtW = v => v==null ? "—" : (typeof v==="number" && Math.abs(v)>=1e8 ? (v/1e8).toFixed(2)+"亿" : (typeof v==="number" && Math.abs(v)>=1e4 ? (v/1e4).toFixed(1)+"万" : fmt(v)));
+const calH = c => c ? `<span class="caltip">口径 ⓘ<span class="calpop"><b>${c.name}</b><br>分子：${c["分子"]||"—"}<br>分母：${c["分母"]||"—"}<br>只算：${c["只算什么"]||"—"}<br>不算：${c["不算什么"]||"—"}</span></span>` : "";
+const S = ["#5B8FF9","#61DDAA","#65789B","#F6BD16","#7262fd","#78D3F8","#9661BC","#F6903D","#008685","#F08BB4"];
+const ecG = {left:8, right:12, top:36, bottom:4, containLabel:true};
+const ecAX = {type:"category", boundaryGap:false, axisLabel:{color:"#8f959e", fontSize:11.5, margin:10}};
+const ecAY = {type:"value", axisLabel:{color:"#8f959e", fontSize:11.5, margin:6}, splitLine:{lineStyle:{color:"#EFF0F1", type:[3,4]}}, splitNumber:5};
+const SUB = "#646a73";
+const EC_BASE = {
+  color: S, textStyle: {fontFamily:"Inter, Microsoft YaHei, system-ui, sans-serif"},
+  grid: ecG,
+  tooltip: {trigger:"axis", backgroundColor:"#fff", borderColor:"#EFF0F1", borderWidth:1,
+    textStyle:{color:"#1f2329", fontSize:12}, padding:[10,12],
+    extraCssText:"box-shadow:0 8px 20px rgba(16,24,40,.09);border-radius:8px;"},
+  legend: {textStyle:{color:"#646a73", fontSize:12}, itemWidth:14, itemHeight:3, itemGap:16, icon:"roundRect"},
+  animationDuration:300, animationDurationUpdate:300,
+  xAxis: {...ecAX, axisLine:{lineStyle:{color:"#dee0e3"}}, axisTick:{show:false}},
+  yAxis: {...ecAY, axisLine:{show:false}, axisTick:{show:false}}
+};
+const charts = [];
+let activeDomain = 0;
+
+function renderDomain(di) {
+  activeDomain = di;
+  charts.forEach(ch => ch.dispose()); charts.length = 0;
+  const dom = DATA.domains[di];
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  dom.components.forEach(c => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.style.gridColumn = (c.grid.x + 1) + " / span " + c.grid.w;
+    cell.style.gridRow = (c.grid.y + 1) + " / span " + c.grid.h;
+    board.appendChild(cell);
+    try { (RENDERERS[c.type] || RENDERERS.text)(c, cell); }
+    catch (e) { cell.innerHTML = `<div style="color:#cb2634;font-size:12px">组件 ${c.id} 渲染失败: ${e.message}</div>`; }
+    if (c.warn) {
+      const chip = document.createElement("span");
+      chip.className = "warnchip";
+      chip.innerHTML = `⚠ 自动调整<span class="wpop">${c.warn}</span>`;
+      const head = cell.querySelector(".phead2");
+      if (head) head.appendChild(chip);
+      else { chip.style.position = "absolute"; chip.style.top = "10px"; chip.style.right = "12px"; cell.appendChild(chip); }
+    }
+  });
+  document.querySelectorAll(".segctl button").forEach((b,i)=>b.classList.toggle("active", i===di));
+  requestAnimationFrame(() => charts.forEach(ch => ch.resize()));
+}
+
+let __spkSeq = 0;
+function renderKPI(k, parent) {
+  const du = k.direction === "up";
+  const sc = du ? "#3370F4" : "#FF811A";
+  let pill = "";
+  if (k.delta_pct != null && k.good != null)
+    pill = `<span class="mom ${k.good?"good":"bad"}">${k.delta_pct>=0?"▲":"▼"} ${Math.abs(k.delta_pct)}%</span>`;
+  else pill = `<span class="mom flat">最新值</span>`;
+  let spark = "";
+  if (k.spark && k.spark.length > 1) {
+    const w=96, h=40, lo=Math.min(...k.spark), hi=Math.max(...k.spark), r=(hi-lo)||1;
+    const pts = k.spark.map((v,i)=>`${(i/(k.spark.length-1)*w).toFixed(1)},${(h-3-(v-lo)/r*(h-6)).toFixed(1)}`).join(" ");
+    const gid = "sp_" + (++__spkSeq);
+    spark = `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" width="100%" height="${h}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sc}66"/><stop offset="1" stop-color="${sc}00"/></linearGradient></defs><polygon points="0,${h} ${pts} ${w},${h}" fill="url(#${gid})"/><polyline points="${pts}" fill="none" stroke="${sc}" stroke-width="2" opacity=".85"/></svg>`;
+  }
+  // 五段式统一结构：说明块无口径时用方向+单位占位（保证每卡五块、跨卡对齐）
+  const frac = `<div class="kfrac">${k.caliber ? `分子：${(k.caliber["分子"]||"—").slice(0,26)} · 分母：${(k.caliber["分母"]||"—").slice(0,26)}` : `${du?"越高越好":"越低越好"}${k.unit?" · 单位 "+k.unit:""}`}</div>`;
+  const hint = `<div class="drillhint">下钻多维视图 →</div>`;
+  const el = document.createElement("div");
+  el.className = "kpi " + (du ? "dir-up" : "dir-down");
+  el.innerHTML = `
+    <div class="ktop">
+      <div class="kname">${k.name}</div>
+      <div class="kico ${du?"up":"down"}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          ${du ? '<path d="M8 3L13 8L8 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 8L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' : '<path d="M8 13L3 8L8 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 8L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'}
+        </svg>
+      </div>
+      ${pill}
+    </div>
+    <div class="kmain"><div class="kval">${fmt(k.value)}<small>${k.unit}</small></div></div>
+    ${frac}
+    <div class="kspark">${spark}</div>
+    <div class="kfoot">${hint}</div>`;
+  el.onclick = () => showL2(k);
+  parent.appendChild(el);
+}
+
+const RENDERERS = {
+  kpi(c, cell) {
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "display:grid;grid-template-columns:minmax(0,1fr);gap:12px;height:100%";
+    renderKPI(c.data, wrap);
+    cell.appendChild(wrap);
+  },
+  line(c, cell) {
+    const d = c.data;
+    const cal = d.caliber;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||"趋势"}${calH(cal)}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    // 量纲检测：系列间最大值差 >30 倍时，小量级系列挂右轴（率/人数 vs 百万级计数）
+    const maxes = d.series.map(s => Math.max(...(s.data||[]).filter(v=>v!=null), 0));
+    const big = maxes.length ? Math.max(...maxes) : 0;
+    const dual = big > 0 && maxes.filter(m => m > 0 && m < big/30).length > 0;
+    // 双轴时：大量级系列画渐变面积线（视觉主角），小量级系列画细虚线挂右轴（配角）
+    const mkArea = (col) => ({color:{type:"linear", x:0, y:0, x2:0, y2:1,
+      colorStops:[{offset:0, color:col+"59"}, {offset:1, color:col+"00"}]}});
+    ch.setOption({
+      animationDuration:300, tooltip:{trigger:"axis"},
+      legend:{top:0, right:8, textStyle:{color:"#646a73", fontSize:11}, itemWidth:14, itemHeight:3, icon:"roundRect"},
+      grid:ecG,
+      xAxis:{type:"category", boundaryGap:false, data:d.times, axisLabel:{color:"#8f959e", fontSize:10}},
+      yAxis: dual ? [{...ecAY}, {...ecAY, splitLine:{show:false}, max:v=>Math.ceil(v*1.15)}] : {...ecAY},
+      series:d.series.map((s,i)=>{
+        const small = dual && maxes[i] < big/30;
+        const col = i < 8 ? S[i%S.length] : "#8F959E";
+        if (small) return {name:s.name, type:"line", data:s.data, smooth:false, symbol:"circle",
+          symbolSize:4, showSymbol:true, connectNulls:true, yAxisIndex:1,
+          lineStyle:{width:1.8, type:[6,3], color:col}, itemStyle:{color:col, borderColor:"#fff", borderWidth:1}};
+        return {name:s.name, type:"line", data:s.data, smooth:false, symbol:"circle",
+          symbolSize:5, showSymbol:true, connectNulls:true, yAxisIndex:0,
+          lineStyle:{width:2.4, color:col, shadowColor:col+"26", shadowBlur:6, shadowOffsetY:4},
+          itemStyle:{color:col, borderColor:"#fff", borderWidth:1.5},
+          areaStyle: dual ? mkArea(col) : (i===0 ? {color:col+"12"} : undefined),
+          markLine: i === 0 ? {silent:true, symbol:"none", lineStyle:{type:"dashed", color:"#8f959e", width:1}, label:{show:false}, data:[{type:"average"}]} : undefined,
+          markPoint: (s.data||[]).length > 1 ? {symbol:"circle", symbolSize:9, itemStyle:{color:col, borderColor:"#fff", borderWidth:2},
+            label:{show:false}, data:[{type:"max"}]} : undefined};
+      })
+    });
+    charts.push(ch);
+  },
+  bar(c, cell) {
+    const d = c.data;
+    const rkC = [
+      {bg:"rgba(245,63,63,.12)", fg:"#cb2634"},
+      {bg:"rgba(255,125,0,.13)", fg:"#c26100"},
+      {bg:"rgba(255,190,92,.2)", fg:"#a25a00"}
+    ];
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${d.title||c.title}</div></div><div id="bb_${c.id}"></div>`;
+    const bb = document.getElementById("bb_"+c.id);
+    const vmax = Math.max(...d.rows.map(r => typeof r.value === "number" ? r.value : 0), 0);
+    d.rows.forEach((r,i)=>{
+      const row = document.createElement("div");
+      row.className = "rank-row";
+      const st = i<3 ? rkC[i] : {bg:"rgba(16,24,40,.05)", fg:SUB};
+      const w = (vmax > 0 && typeof r.value === "number") ? Math.max(r.value/vmax*100, 2) : 0;
+      row.innerHTML = `<div class="rk" style="background:${st.bg};color:${st.fg}">${i+1}</div>
+        <div class="rmain">
+          <div class="rtop">
+            <div class="rlabel" title="${r.label}">${r.label}</div>
+            <div class="rval">${fmt(r.value)}<small>${d.unit}</small></div>
+          </div>
+          <div class="rtrack"><div class="rfill" style="width:${w}%;background:${i<3?st.fg:"#3370F4"};opacity:${i<3?1:.55}"></div></div>
+        </div>`;
+      row.onclick = ()=>{ if(DATA.drill.l3 && d.dimension) showL3(d.dimension, r.label, null); };
+      bb.appendChild(row);
+    });
+  },
+  pie(c, cell) {
+    const d = c.data;
+    const PC = S;
+    const legendHTML = d.slices.map((s,i)=>
+      `<span style="display:inline-flex;align-items:center;gap:5px;margin:0 10px 4px 0;font-size:11.5px;color:#3b4356;font-weight:600">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${PC[i%PC.length]}"></span>
+        ${s.label}</span>`).join("");
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${d.title||c.title}</div></div>
+      <div style="margin-bottom:8px;line-height:1.5">${legendHTML}</div>
+      <div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    ch.setOption({...EC_BASE,
+      tooltip:{...EC_BASE.tooltip, trigger:"item", formatter:p=>`${p.name}: ${fmt(p.value)} ${d.unit} (${p.percent}%)`},
+      title:{text:fmt(d.total), subtext:"共"+d.slices.length+"块", left:"center", top:"middle",
+        textStyle:{fontSize:22, fontWeight:650, color:"#1f2329"},
+        subtextStyle:{fontSize:10.5, color:"#aeb4bd"}},
+      series:[{type:"pie", radius:["50%","66%"], center:["50%","52%"],
+        itemStyle:{borderRadius:4, borderColor:"#fff", borderWidth:2},
+        label:{show:false},
+        data:d.slices.map((s,i)=>({...s, itemStyle:{color:PC[i%PC.length]}}))}]});
+    charts.push(ch);
+  },
+  heatmap(c, cell) {
+    const hm = c.data;
+    const med = {};
+    hm.cols.forEach(cc=>{
+      const vs = hm.rows.map(r=>r.cells[cc.id]).filter(v=>typeof v==="number");
+      vs.sort((a,b)=>a-b);
+      med[cc.id] = vs.length ? vs[Math.floor(vs.length/2)] : null;
+    });
+    let html = `<div class="phead2"><div class="ptitle">${c.title||hm.dimension_label+" · 多维健康度"}</div></div><div class="hmwrap" style="flex:1;min-height:0"><table class="hm"><tr><th>${hm.dimension_label}</th>`;
+    hm.cols.forEach(cc => html += `<th>${cc.name}${cc.unit?"("+cc.unit+")":""}</th>`);
+    html += `<th>健康</th></tr>`;
+    hm.rows.forEach(r => {
+      let bad = 0;
+      html += `<tr><td class="dim">${r.label}</td>`;
+      hm.cols.forEach(cc => {
+        const v = r.cells[cc.id];
+        if (v == null) { html += `<td><span class="cellv n">—</span></td>`; return; }
+        const up = cc.direction === "up";
+        const above = v > med[cc.id];
+        let cls = "n";
+        if (med[cc.id] != null) {
+          if (above === (up?false:true) && Math.abs(v - med[cc.id]) > 1e-9) { cls = "r"; bad++; }
+          else if (above === (up?true:false)) { cls = "g"; }
+        }
+        html += `<td><span class="cellv ${cls}" title="中位数 ${fmt(med[cc.id])}">${fmt(v)}</span></td>`;
+      });
+      html += `<td><span class="rowpill ${bad?"bad":"ok"}">${bad?"● "+bad+" 项需关注":"✓ 健康"}</span></td></tr>`;
+    });
+    html += "</table></div>";
+    cell.innerHTML = html;
+  },
+  table(c, cell) {
+    const d = c.data;
+    let t = `<div class="hmwrap"><table class="dt"><tr>`;
+    d.cols.forEach(cc => t += `<th>${cc.name}</th>`);
+    t += "</tr>";
+    d.rows.forEach(r => { t += "<tr>"; d.cols.forEach(cc => { t += `<td${typeof r[cc.key]==="number"?' class="num-r"':""}>${fmt(r[cc.key])}</td>`; }); t += "</tr>"; });
+    t += "</table></div>";
+    cell.innerHTML = t;
+  },
+  histogram(c, cell) {
+    const d = c.data;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||d.x_label+" 分布"}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    ch.setOption({...EC_BASE, tooltip:{...EC_BASE.tooltip, trigger:"axis"},
+      grid:{left:8, right:12, top:28, bottom:52, containLabel:true},
+      xAxis:{type:"category", data:d.bins, axisLabel:{rotate:30, fontSize:9.5, color:"#8f959e"}},
+      yAxis:{...ecAY},
+      series:[{type:"bar", data:d.counts, barCategoryGap:"0%", barMaxWidth:36,
+        label:{show:true, position:"top", fontSize:9.5, color:"#8f959e",
+          formatter: p => p.value >= 10000 ? (p.value/10000).toFixed(1)+"万" : fmt(p.value)},
+        itemStyle:{borderRadius:[3,3,0,0], color:{type:"linear", x:0, y:0, x2:0, y2:1,
+          colorStops:[{offset:0, color:"#5B8DFF"}, {offset:1, color:"#3370F4"}]}}}]});
+    charts.push(ch);
+  },
+  area_stack(c, cell) {
+    const d = c.data;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||"构成趋势"}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    const mkArea = (col) => ({color:{type:"linear", x:0, y:0, x2:0, y2:1,
+      colorStops:[{offset:0, color:col+"59"}, {offset:1, color:col+"00"}]}});
+    ch.setOption({...EC_BASE, tooltip:{...EC_BASE.tooltip, trigger:"axis"},
+      legend:{top:0, textStyle:{color:"#646a73", fontSize:11}, itemWidth:14, itemHeight:3, icon:"roundRect"},
+      grid:ecG,
+      xAxis:{type:"category", data:d.times, axisLabel:{color:"#8f959e", fontSize:10}},
+      yAxis:{...ecAY},
+      series:d.series.map((s,i)=>{
+        const col = i < 8 ? S[i%S.length] : "#8F959E";
+        return {name:s.name, type:"line", stack:"t", data:(s.data||[]).map(v=>v==null?0:v), smooth:false, symbol:"none",
+          connectNulls:true,
+          areaStyle:{opacity:.4, color:mkArea(col).color}, lineStyle:{width:1.6, color:col}, itemStyle:{color:col}};
+      })});
+    charts.push(ch);
+  },
+  scatter(c, cell) {
+    const d = c.data;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||d.x_label+" × "+d.y_label}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    ch.setOption({...EC_BASE,
+      grid:{left:8, right:12, top:28, bottom:4, containLabel:true},
+      xAxis:{type:"value", name:d.x_label, nameGap:14, nameTextStyle:{color:"#8f959e", fontSize:11, align:"left"}},
+      yAxis:{...ecAY, name:d.y_label, nameGap:14, nameTextStyle:{color:"#8f959e", fontSize:11, align:"right"}},
+      series:[{type:"scatter", data:d.points, symbolSize:6, itemStyle:{color:"#3370F4", opacity:.6}}]});
+    charts.push(ch);
+  },
+  funnel(c, cell) {
+    const d = c.data;
+    const stages = (d.stages || []).filter(s => s.value != null);
+    const first = stages.length ? stages[0].value : 0;
+    const last = stages.length ? stages[stages.length-1].value : 0;
+    const FC = ["#1456f0","#4479f3","#6f95f6","#9ab2f9"];
+    let html = `<div class="phead2"><div class="ptitle">${c.title||"转化漏斗"}</div></div><div class="fnl">`;
+    stages.forEach((s, i) => {
+      // 末步最小可见宽度 15%：真实数值标在右侧，宽度只负责形态层次
+      const w = (first > last) ? 15 + (s.value - last)/(first - last)*85 : 100;
+      const share = first ? (s.value/first*100) : 0;
+      const conv = (i > 0 && stages[i-1].value) ? (s.value/stages[i-1].value*100) : null;
+      const lost = (i > 0) ? stages[i-1].value - s.value : 0;
+      html += `
+      <div class="fnl-row">
+        <div class="fnl-name">${s.label}</div>
+        <div class="fnl-track"><div class="fnl-fill" style="width:${w}%;background:${FC[Math.min(i,3)]}"></div></div>
+        <div class="fnl-val">${fmt(s.value)}<small> ${share.toFixed(1)}%</small></div>
+      </div>
+      ${conv != null ? `<div class="fnl-conv"><span style="color:#aeb4bd">↓</span> 本步转化 <b>${conv.toFixed(1)}%</b>${lost>0?`<span style="margin-left:6px;color:#aeb4bd">流失 ${fmt(lost)}</span>`:""}</div>` : ""}`;
+    });
+    html += "</div>";
+    cell.innerHTML = html;
+  },
+  bullet(c, cell) {
+    const d = c.data;
+    const pct = (d.target && d.value != null) ? Math.min(d.value/d.target*100, 130) : null;
+    const gap = (d.target != null && d.value != null) ? d.target - d.value : null;
+    const du = d.direction === "up";
+    const sc = du ? "#3370F4" : "#FF811A";
+    const cal = DATA.kpisById[d.name] ? DATA.kpisById[d.name].caliber : null;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${d.name}${cal?calH(cal):""}</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:0 4px">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span class="kval ${du?"":"dd"}" style="font-size:30px;font-variant-numeric:tabular-nums">${fmt(d.value)}<small>${d.unit}</small></span>
+          ${d.target!=null?`<span style="font-size:12px;color:#8f959e">目标 ${fmt(d.target)}${d.unit}</span>`:""}
+        </div>
+        ${pct!=null?`
+        <div style="height:12px;border-radius:6px;background:var(--layer);position:relative;margin:4px 46px 4px 0">
+          <div style="height:100%;width:${Math.min(pct,100)}%;border-radius:6px;background:${pct>=100?"#35BD4B":sc}"></div>
+          <div style="position:absolute;left:100%;top:-4px;width:2.5px;height:20px;background:#cb2634;border-radius:1.5px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#646a73">
+          <span style="font-weight:700;color:${pct>=100?"#35BD4B":"#3370F4"}">达成 ${pct.toFixed(0)}%</span>
+          ${gap!=null?`<span style="color:${gap>0?"#F54A45":"#35BD4B"};font-weight:600">${gap>0?`差 ${fmt(Math.abs(gap))}${d.unit}`:`超 ${fmt(Math.abs(gap))}${d.unit}`}</span>`:""}
+        </div>`:""}
+        ${cal?`<div class="kfrac">分子：${(cal["分子"]||"—").slice(0,26)} · 分母：${(cal["分母"]||"—").slice(0,26)}</div>`:""}
+      </div>`;
+  },
+  waterfall(c, cell) {
+    const d = c.data;
+    const items = d.items || [];
+    const cats = [], helps = [], bars = [], kinds = [];
+    let acc = 0;
+    items.forEach(it => {
+      const v = it.value || 0;
+      cats.push(it.label);
+      if (it.total) { helps.push(0); bars.push(v); acc = v; kinds.push("t"); }
+      else if (v >= 0) { helps.push(acc); bars.push(v); acc += v; kinds.push("p"); }
+      else { acc += v; helps.push(acc); bars.push(-v); kinds.push("n"); }
+    });
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||"构成瀑布"}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    ch.setOption({...EC_BASE,
+      tooltip:{...EC_BASE.tooltip, trigger:"axis", axisPointer:{type:"shadow"},
+        formatter: ps => { const i = ps[0].dataIndex; const raw = items[i].value || 0;
+          return cats[i] + "<br>" + (items[i].total ? fmt(raw) : (raw > 0 ? "+" : "-") + fmt(Math.abs(raw)) + (d.unit ? " " + d.unit : "")); }},
+      grid:{left:8, right:12, top:30, bottom:4, containLabel:true},
+      xAxis:{type:"category", data:cats, axisLabel:{color:"#8f959e", fontSize:10.5, interval:0, rotate:18,
+        formatter: v => String(v).length > 6 ? String(v).slice(0,6)+"…" : v}},
+      yAxis:{...ecAY},
+      series:[
+        {type:"bar", stack:"wf", silent:true, itemStyle:{color:"transparent"}, emphasis:{itemStyle:{color:"transparent"}}, data:helps},
+        {type:"bar", stack:"wf", barWidth:"44%", barMinHeight:3,
+          itemStyle:{borderRadius:[3,3,0,0], color: p => kinds[p.dataIndex]==="t" ? "#3370F4" : (kinds[p.dataIndex]==="p" ? "#35BD4B" : "#F54A45")},
+          label:{show:true, position:"top", fontSize:11, fontWeight:500, color:"#646a73",
+            formatter: p => { const i = p.dataIndex; const raw = items[i].value || 0;
+              return items[i].total ? fmt(raw) : (raw > 0 ? "+" : "-") + fmt(Math.abs(raw)); }},
+          data: bars}
+      ]});
+    charts.push(ch);
+  },
+  sankey(c, cell) {
+    const d = c.data;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||"流向图"}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    ch.setOption({...EC_BASE, tooltip:{...EC_BASE.tooltip, trigger:"item", triggerOn:"mousemove"},
+      series:[{type:"sankey", left:8, right:96, top:16, bottom:16,
+        nodeWidth:16, nodeGap:18, nodeAlign:"left",
+        emphasis:{focus:"adjacency"},
+        lineStyle:{color:"gradient", opacity:.35, curveness:.5},
+        label:{color:"#646a73", fontSize:12},
+        data:d.nodes, links:d.links}]});
+    charts.push(ch);
+  },
+  radar(c, cell) {
+    const d = c.data;
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${c.title||"多维对比"}</div></div><div class="chart" id="ch_${c.id}"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    const {xAxis, yAxis, ...EC_NOAX} = EC_BASE;   // 雷达自带极坐标，杂散轴会让 ECharts 崩
+    ch.setOption({...EC_NOAX,
+      legend:{...EC_BASE.legend, bottom:0, left:"center"},
+      radar:{indicator:d.indicators, radius:"68%", center:["50%","50%"],
+        axisName:{color:"#8f959e", fontSize:10.5},
+        splitLine:{lineStyle:{color:"#EFF0F1"}}, splitArea:{show:false},
+        axisLine:{lineStyle:{color:"#EFF0F1"}}},
+      series:[{type:"radar", data:d.series.map((s,i)=>({name:s.name, value:s.values,
+        symbol:"circle", symbolSize:3, lineStyle:{width:2}, color:i < 8 ? S[i%S.length] : "#8F959E",
+        areaStyle:{opacity:.12}}))}]});
+    charts.push(ch);
+  },
+  gauge(c, cell) {
+    const d = c.data;
+    const val = d.value == null ? 0 : d.value;
+    const pct = d.max ? val / d.max : 0;
+    const col = pct >= .85 ? "#2DBEAB" : (pct >= .6 ? "#ED6D0C" : "#F54A45");
+    cell.innerHTML = `<div class="phead2"><div class="ptitle">${d.name||c.title}${calH(d.caliber)}</div></div>
+      <div class="chart" id="ch_${c.id}" style="min-height:150px"></div>`;
+    const ch = echarts.init(document.getElementById("ch_"+c.id));
+    ch.setOption({...EC_BASE,
+      series:[{type:"gauge", startAngle:180, endAngle:0, center:["50%","72%"], radius:"100%",
+        min:0, max:d.max||100,
+        axisTick:{show:false}, splitLine:{show:false}, axisLabel:{show:false}, pointer:{show:false},
+        progress:{show:true, width:16, roundCap:true, itemStyle:{color:col}},
+        axisLine:{lineStyle:{width:16, color:[[.6,"rgba(245,74,69,.18)"],[.85,"rgba(237,109,12,.18)"],[1,"rgba(45,190,171,.18)"]]}},
+        anchor:{show:false},
+        detail:{valueAnimation:true, fontSize:28, fontWeight:650, color:"#1f2329",
+          formatter: v => fmt(v) + (d.unit||""), offsetCenter:[0,"-18%"]},
+        title:{show:false},
+        data:[{value:val}]}]});
+    charts.push(ch);
+  },
+  text(c, cell) { cell.innerHTML = `<div style="font-size:12.5px;color:#646a73;line-height:1.8">${c.data.content}</div>`; },
+  heading(c, cell) {
+    cell.classList.add("cell-heading");
+    cell.innerHTML = `<div class="hgroup"><span class="hbar"></span><span>${c.data.content}</span></div>`;
+  },
+};
+
+const board = document.getElementById("board");
+(function buildDomSeg() {
+  const seg = document.getElementById("domSeg");
+  if (!seg || !DATA.domains || DATA.domains.length < 2) return;
+  seg.style.display = "inline-flex";
+  seg.innerHTML = DATA.domains.map((d, i) =>
+    `<button onclick="renderDomain(${i})">${d.label || d.id}</button>`).join("");
+})();
+renderDomain(0);
+
+window.addEventListener("resize", () => charts.forEach(ch => ch.resize()));
+
+// 2026-09-22 全屏可逆化（全屏可逆化）：点一次原地全屏，再点一次或按 ESC 缩回。
+// 沙箱 iframe 禁全屏时降级为新标签页（DSH 右侧栏场景）。
+function toggleFullscreen() {
+  const btn = document.getElementById("fsBtn");
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+    if (btn) { btn.textContent = "⛶ 全屏查看"; btn.title = "点一次原地全屏，再点一次或按 ESC 缩回"; }
+    return;
+  }
+  const el = document.documentElement;
+  try {
+    const p = el.requestFullscreen ? el.requestFullscreen() : null;
+    if (p && p.then) {
+      p.then(() => {
+        if (btn) { btn.textContent = "⤓ 退出全屏"; btn.title = "再点一次或按 ESC 缩回"; }
+      }).catch(() => window.open(location.href, "_blank"));
+    } else if (!p) {
+      window.open(location.href, "_blank");
+    }
+  } catch (e) { window.open(location.href, "_blank"); }
+}
+document.addEventListener("fullscreenchange", () => {
+  const btn = document.getElementById("fsBtn");
+  if (btn) {
+    const fs = !!document.fullscreenElement;
+    btn.textContent = fs ? "⤓ 退出全屏" : "⛶ 全屏查看";
+    btn.title = fs ? "再点一次或按 ESC 缩回" : "点一次原地全屏，再点一次或按 ESC 缩回";
+  }
+  setTimeout(() => charts.forEach(ch => ch.resize()), 80);
+});
+
+let lastMetric = null;
+function show(id) {
+  ["v-l1","v-l2","v-l3"].forEach(v => document.getElementById(v).classList.toggle("on", v === id));
+  window.scrollTo(0, 0);
+}
+function crumb(items) {
+  const c = document.getElementById("crumb");
+  c.style.display = "flex";
+  c.innerHTML = items.map(it => it.cur ? `<span class="cur">${it.t}</span>` : `<button onclick='${it.fn}'>${it.t}</button>`).join('<span style="color:#aeb4bd">›</span>');
+}
+function showL2(k) {
+  lastMetric = k;
+  const h = document.getElementById("l2hero");
+  h.innerHTML = `<div class="hv ${k.direction==="up"?"du":"dd"}">${fmt(k.value)}<small style="font-size:16px;color:#aeb4bd">${k.unit}</small></div>
+    <div class="hn">${k.name} · ${k.direction==="up"?"越高越好":"越低越好"}${k.delta_pct!=null&&k.good!=null?` · 环比 ${k.delta_pct>=0?"▲":"▼"}${Math.abs(k.delta_pct)}%`:""}</div>${calH(k.caliber)}`;
+  const sl = document.getElementById("l2slices");
+  if (DATA.drill.l2slices && DATA.drill.l2slices.length) {
+    sl.style.display = "grid";
+    sl.innerHTML = DATA.drill.l2slices.map(s =>
+      `<div class="scard c-${s.color}"><div class="bar"></div><div class="sv">${fmt(s.value)}<small>${s.unit}</small></div><div class="sl">${s.label}</div></div>`).join("");
+  } else { sl.style.display = "none"; sl.innerHTML = ""; }
+  const s = k.spark || [];
+  const l2sum = document.getElementById("l2sum");
+  l2sum.style.display = "grid";
+  l2sum.innerHTML = `
+    <div class="sumc"><div class="sumv">${fmt(k.value)}</div><div class="suml">最新值</div></div>
+    <div class="sumc"><div class="sumv">${fmt(s.length ? s.reduce((a,b)=>a+b,0)/s.length : null)}</div><div class="suml">期间均值</div></div>
+    <div class="sumc"><div class="sumv">${fmt(s.length ? Math.max(...s) : null)}</div><div class="suml">期间最高</div></div>
+    <div class="sumc"><div class="sumv">${fmt(s.length ? Math.min(...s) : null)}</div><div class="suml">期间最低</div></div>`;
+  const dims = document.getElementById("l2dims");
+  dims.innerHTML = "";
+  if (DATA.drill.l2dims && DATA.drill.l2dims.length) {
+    // 维度分段控件 + 摘要 chips + 单表区（页面高度恒定；默认选中第 1 个维度）
+    const wrap = document.createElement("div");
+    wrap.className = "dimpanel";
+    wrap.innerHTML = `
+      <div class="dimbar">
+        <div class="segctl dimseg">${DATA.drill.l2dims.map((d,i)=>`<button data-di="${i}">${d.label}</button>`).join("")}</div>
+        <div class="dimsum" id="dimsum"></div>
+      </div>
+      <div class="dimtablewrap"><table class="dt dimtbl" id="dimtable"></table></div>`;
+    dims.appendChild(wrap);
+    const isBoolCol = (c, rows) => {
+      if (/^(is_|has_)/i.test(c.key)) return true;
+      const vs = rows.map(r => r[c.key]).filter(v => v !== null && v !== undefined && v !== "");
+      return vs.length > 0 && vs.every(v => v === 0 || v === 1 || v === true || v === false);
+    };
+    const dimSummary = (d) => {
+      const chips = [];
+      for (const c of d.cols) {
+        if (/排名|rank/i.test(c.name) || /_rank$|_rnk$|_id$/i.test(c.key)) continue;  // 排名/ID 列不进摘要
+        const vs = d.rows.map(r => r[c.key]).filter(v => typeof v === "number");
+        if (!vs.length) continue;
+        if (chips.length < 2 && /率|%$|rate|pct/i.test(c.name)) chips.push(`${c.name.replace(/\(%\)$/,"")}最高 ${fmt(Math.max(...vs))}%`);
+        else if (chips.length < 2 && /成本|费用|金额|合计|cost|amount/i.test(c.name)) chips.push(`${c.name}合计 ${fmt(vs.reduce((a,b)=>a+b,0))}`);
+      }
+      chips.push(`${d.rows.length} 行明细`);
+      return chips.map(x => `<span class="sumchip">${x}</span>`).join("");
+    };
+    const renderDim = (di) => {
+      const d = DATA.drill.l2dims[di];
+      document.getElementById("dimsum").innerHTML = dimSummary(d);
+      const bools = new Set(d.cols.filter(c => isBoolCol(c, d.rows)).map(c => c.key));
+      let t = "<tr>" + d.cols.map(c => `<th>${c.name}</th>`).join("") + "</tr>";
+      d.rows.forEach(r => { t += "<tr>"; d.cols.forEach(c => {
+        const hl = c.key === k.id ? " hl" : "";
+        const num = (typeof r[c.key] === "number" && !bools.has(c.key)) ? " num-r" : "";
+        const val = bools.has(c.key) ? (r[c.key] ? "✓" : "—") : fmt(r[c.key]);
+        const click = c.key === d.dimension && DATA.drill.l3 ? ` onclick="showL3('${d.dimension}','${String(r[c.key]).replace(/'/g,"\'")}','${k.id}')"` : "";
+        t += `<td class="${hl}${num}"${click}>${val}</td>`;
+      }); t += "</tr>"; });
+      document.getElementById("dimtable").innerHTML = t;
+      wrap.querySelectorAll(".dimseg button").forEach((b, i) => b.classList.toggle("active", i === di));
+    };
+    wrap.querySelectorAll(".dimseg button").forEach((b, i) => b.onclick = () => renderDim(i));
+    renderDim(0);
+  }
+  crumb([{t:"‹ 返回总览", fn:"showL1()"}, {t:k.name, cur:true}]);
+  show("v-l2");
+}
+function showL1() { crumb([]); document.getElementById("crumb").style.display = "none"; show("v-l1"); }
+let l3Filter = null, l3State = {page:1, fsel:{}};
+function showL3(dim, val, metricId) { l3Filter = {dim, val}; l3State = {page:1, fsel:{}}; renderL3(); }
+function renderL3() {
+  const l3 = DATA.drill.l3;
+  const {dim, val} = l3Filter || {};
+  const colKey = l3.dim_map[dim] || dim;
+  const dimLabel = (l3.cols.find(c => c.key === colKey) || {}).name || dim;
+  const mk = lastMetric;
+  const du = mk ? mk.direction === "up" : true;
+  let rows = l3.rows.filter(r => String(r[colKey]) === String(val));
+  if (Object.keys(l3State.fsel).length) {
+    rows = rows.filter(r => Object.entries(l3State.fsel).every(([col,v]) => String(r[col]) === String(v)));
+  }
+  const frac = mk && mk.caliber && (mk.caliber["分子"] || mk.caliber["分母"])
+    ? `<div class="kfrac" style="font-size:11.5px">分子：${(mk.caliber["分子"]||"—").slice(0,40)} · 分母：${(mk.caliber["分母"]||"—").slice(0,40)}</div>` : "";
+  const hero = document.getElementById("l3hero");
+  hero.className = "l3hero " + (du ? "h-du" : "h-dd");
+  hero.innerHTML = `<div class="hv" style="font-size:30px">${val}<small style="font-size:14px;color:#aeb4bd"> · ${dimLabel}</small></div>
+    ${mk ? `<div style="display:flex;align-items:baseline;gap:14px;margin-top:4px"><div class="hv ${du?"du":"dd"}" style="font-size:26px">${fmt(mk.value)}<small>${mk.unit}</small></div><div class="hn">${mk.name} · ${du?"越高越好":"越低越好"}</div>${calH(mk.caliber)}</div>${frac}` : ""}
+    <div class="hn" style="margin-top:4px">明细 ${rows.length} 行${l3.truncated ? `（内嵌上限 ${l3.limit} 行）` : ""}</div>`;
+  const chips = document.getElementById("l3chips");
+  let ch = "";
+  (l3.fgroups || []).forEach(g => {
+    ch += `<div class="fgroup"><span class="flabel">${g.label}：</span>`;
+    ch += `<span class="chip ${!l3State.fsel[g.column]?"on":""}" onclick="l3State.fsel['${g.column}']=undefined;renderL3()">全部</span>`;
+    g.values.forEach(v => {
+      const on = l3State.fsel[g.column] === v;
+      ch += `<span class="chip ${on?"on":""}" onclick="l3State.fsel['${g.column}']='${v}';l3State.page=1;renderL3()">${v}</span>`;
+    });
+    ch += "</div>";
+  });
+  const vals = [...new Set(l3.rows.map(r => String(r[colKey])))].slice(0,12);
+  ch += `<div class="fgroup"><span class="flabel">${dimLabel}：</span>` + vals.map(v =>
+    `<span class="chip ${v===String(val)?"on":""}" onclick="l3Filter.val='${v}';l3State.page=1;renderL3()">${v}</span>`).join("") + "</div>";
+  chips.innerHTML = ch;
+  const PAGE = 100, np = Math.max(1, Math.ceil(rows.length/PAGE));
+  if (l3State.page > np) l3State.page = np;
+  const pgRows = rows.slice((l3State.page-1)*PAGE, l3State.page*PAGE);
+  const st = l3.status;
+  let t = `<table class="dt"><tr>`;
+  l3.cols.forEach(c => t += `<th>${c.name}</th>`);
+  t += "</tr>";
+  pgRows.forEach(r => {
+    let rc = "";
+    if (st) {
+      const sv = String(r[st.column]);
+      if ((st.bad||[]).map(String).includes(sv)) rc = "row-bad";
+      else if ((st.good||[]).map(String).includes(sv)) rc = "row-good";
+    }
+    t += `<tr class="${rc}">`;
+    l3.cols.forEach(c => t += `<td${typeof r[c.key]==="number"?' class="num-r"':""}>${fmt(r[c.key])}</td>`);
+    t += "</tr>";
+  });
+  t += "</table>";
+  t += `<div class="pager"><button ${l3State.page<=1?"disabled":""} onclick="l3State.page--;renderL3()">‹ 上一页</button><span>${np>1?((l3State.page-1)*PAGE+1)+"-"+Math.min(l3State.page*PAGE,rows.length)+" / "+rows.length:""}</span><button ${l3State.page>=np?"disabled":""} onclick="l3State.page++;renderL3()">下一页 ›</button></div>`;
+  document.getElementById("l3title").textContent = `${dimLabel}=${val} 的明细（第 ${l3State.page}/${np} 页）`;
+  document.getElementById("l3table").innerHTML = t;
+  crumb([{t:"‹ 返回总览", fn:"showL1()"}]
+    .concat(mk ? [{t:"‹ 返回"+mk.name, fn:`showL2(DATA.kpisById['${mk.id}'])`}] : [])
+    .concat([{t:val, cur:true}]));
+  show("v-l3");
+}
+</script>
+</body></html>
