@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><title>数据建模：从杂乱到有序</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Inter","Microsoft YaHei",system-ui,sans-serif;background:#f0f2f5;padding:40px;display:flex;justify-content:center}
+.wrap{width:1200px}
+h1{text-align:center;font-size:28px;font-weight:700;color:#1f2329;margin-bottom:8px}
+.sub{text-align:center;font-size:14px;color:#8f959e;margin-bottom:40px}
+.cols{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;align-items:stretch}
+.panel{border-radius:16px;padding:28px;min-height:520px}
+.before{background:linear-gradient(135deg,#fff5f5,#fff0f0);border:2px solid rgba(245,74,69,.15)}
+.after{background:linear-gradient(135deg,#f0f7ff,#eef4ff);border:2px solid rgba(20,86,240,.15)}
+.panel h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.panel .tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 12px;border-radius:999px;margin-bottom:20px}
+.before .tag{background:rgba(245,74,69,.1);color:#cb2634}
+.after .tag{background:rgba(20,86,240,.1);color:#1456f0}
+/* 杂乱表 */
+.mess{display:flex;flex-wrap:wrap;gap:12px;position:relative}
+.mtable{background:#fff;border:1px solid rgba(16,24,40,.1);border-radius:8px;padding:10px 14px;font-size:12px;box-shadow:0 2px 6px rgba(16,24,40,.06);cursor:default;transition:transform .2s}
+.mtable:hover{transform:rotate(-2deg)}
+.mtable b{display:block;font-size:13px;color:#1f2329;margin-bottom:4px}
+.mtable span{color:#8f959e;font-size:11px}
+.mtable.bad{border-color:rgba(245,74,69,.3)}
+.mtable.bad b{color:#cb2634}
+.chaos-line{position:absolute;height:2px;background:rgba(245,74,69,.2);transform-origin:0 0;border-radius:1px}
+/* 有序层 */
+.layer{display:flex;align-items:center;gap:14px;margin-bottom:14px;background:#fff;border:1px solid rgba(20,86,240,.12);border-radius:12px;padding:14px 18px;box-shadow:0 2px 8px rgba(20,86,240,.05)}
+.layer .icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.layer .info{flex:1}
+.layer .info b{display:block;font-size:14px;color:#1f2329}
+.layer .info span{font-size:11.5px;color:#646a73}
+.layer .cnt{font-size:22px;font-weight:700;color:#1456f0;font-variant-numeric:tabular-nums}
+.l1 .icon{background:linear-gradient(135deg,rgba(20,86,240,.15),rgba(20,86,240,.05));color:#1456f0}
+.l2 .icon{background:linear-gradient(135deg,rgba(0,166,166,.15),rgba(0,166,166,.05));color:#00a6a6}
+.l3 .icon{background:linear-gradient(135deg,rgba(114,46,209,.15),rgba(114,46,209,.05));color:#722ed1}
+.l4 .icon{background:linear-gradient(135deg,rgba(255,125,0,.15),rgba(255,125,0,.05));color:#ff7d00}
+/* 中间箭头 */
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.arrow{font-size:36px;color:#1456f0;font-weight:900}
+.step{font-size:11px;color:#646a73;text-align:center;background:#fff;border:1px solid rgba(20,86,240,.1);border-radius:8px;padding:4px 10px;white-space:nowrap}
+/* 底部指标 */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px}
+.metric{background:#fff;border:1px solid rgba(16,24,40,.07);border-radius:14px;padding:18px;text-align:center;box-shadow:0 2px 8px rgba(16,24,40,.04)}
+.metric .num{font-size:28px;font-weight:700;color:#1456f0;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.metric .lbl{font-size:12px;color:#646a73;margin-top:4px}
+/* 问题标签 */
+.problems{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.prob{font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(245,74,69,.08);color:#cb2634;border:1px solid rgba(245,74,69,.15)}
+.benefits{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.bene{font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(20,86,240,.08);color:#1456f0;border:1px solid rgba(20,86,240,.15)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>数据建模：从杂乱到有序</h1>
+<div class="sub">MovieLens 开源数据 · 33,832,162 条评分 · AI 引导四层建模</div>
+
+<div class="cols">
+  <!-- 左：杂乱 -->
+  <div class="panel before">
+    <h2>原始数据</h2>
+    <span class="tag">BEFORE · 杂乱</span>
+    <div class="mess">
+      <div class="mtable bad"><b>ratings.csv</b><span>3,383 万行 · 无主键</span></div>
+      <div class="mtable bad"><b>movies.csv</b><span>8.6 万行 · 类型混在一列</span></div>
+      <div class="mtable bad"><b>tags.csv</b><span>232 万行 · 时间格式不统一</span></div>
+      <div class="mtable bad"><b>links.csv</b><span>8.6 万行 · 外部 ID 映射</span></div>
+      <div class="mtable bad"><b>genome-scores.csv</b><span>1,120 万行 · 不知道给谁用</span></div>
+      <div class="mtable bad"><b>README.txt</b><span>口径没写清 · "好评"是什么？</span></div>
+      <!-- 交叉线 -->
+      <div class="chaos-line" style="left:60px;top:40px;width:200px;transform:rotate(15deg)"></div>
+      <div class="chaos-line" style="left:200px;top:80px;width:180px;transform:rotate(-20deg)"></div>
+      <div class="chaos-line" style="left:100px;top:120px;width:250px;transform:rotate(8deg)"></div>
+      <div class="chaos-line" style="left:50px;top:160px;width:300px;transform:rotate(-12deg)"></div>
+    </div>
+    <div class="problems">
+      <span class="prob">口径不统一</span>
+      <span class="prob">命名混乱</span>
+      <span class="prob">重复数据</span>
+      <span class="prob">层级缺失</span>
+      <span class="prob">无法直接出报表</span>
+      <span class="prob">"好评"定义不清</span>
+    </div>
+  </div>
+
+  <!-- 中间箭头 -->
+  <div class="mid">
+    <div class="arrow">→</div>
+    <div class="step">AI 引导</div>
+    <div class="step">口径拍板</div>
+    <div class="step">四层建模</div>
+    <div class="step">验证对账</div>
+  </div>
+
+  <!-- 右：有序 -->
+  <div class="panel after">
+    <h2>数据模型</h2>
+    <span class="tag">AFTER · 有序</span>
+    <div class="layer l1">
+      <div class="icon">ODS</div>
+      <div class="info"><b>原始层 · 4 张表</b><span>原样入库，不清洗不加工</span></div>
+      <div class="cnt">4</div>
+    </div>
+    <div class="layer l2">
+      <div class="icon">DIM</div>
+      <div class="info"><b>维度层 · 5 张表</b><span>日期/电影/类型/用户/标签 维度表</span></div>
+      <div class="cnt">5</div>
+    </div>
+    <div class="layer l3">
+      <div class="icon">DWD</div>
+      <div class="info"><b>明细层 · 2 张表</b><span>评分事实表 + 标签事实表（清洗后）</span></div>
+      <div class="cnt">2</div>
+    </div>
+    <div class="layer l4">
+      <div class="icon">ADS</div>
+      <div class="info"><b>展示层 · 5 张表</b><span>年度总览 / 类型趋势 / 电影排名 / 评分分布 / 标签热度</span></div>
+      <div class="cnt">5</div>
+    </div>
+    <div class="benefits">
+      <span class="bene">口径统一（好评=≥4.5 星）</span>
+      <span class="bene">层级清晰</span>
+      <span class="bene">一键出看板</span>
+      <span class="bene">可下钻明细</span>
+      <span class="bene">零 token 确定性渲染</span>
+    </div>
+  </div>
+</div>
+
+<!-- 底部指标 -->
+<div class="metrics">
+  <div class="metric"><div class="num">33M</div><div class="lbl">原始评分数据</div></div>
+  <div class="metric"><div class="num">25</div><div class="lbl">建模后数据表</div></div>
+  <div class="metric"><div class="num">6</div><div class="lbl">数仓层级</div></div>
+  <div class="metric"><div class="num">17</div><div class="lbl">可视化组件类型</div></div>
+</div>
+</div>
+</body>
+</html>

@@ -10,15 +10,15 @@
 
 **Raw data (33M ratings, 86K movies, 4 scattered tables) → AI-guided modeling → 4-layer warehouse → interactive dashboard**
 
-### 数据模型地图 | Data Model Map
+### 从杂乱到有序 | From Chaos to Structure
+
+![Before After](screenshots/before-after.png)
+*MovieLens 开源数据：3,300 万条杂乱评分 → AI 引导四层建模 → 25 张有序数据表 | MovieLens open data: 33M chaotic ratings → AI-guided 4-layer modeling → 25 structured tables*
+
+### 数据模型全景 | Data Model Map
 
 ![Model Map](screenshots/model-map.png)
-*MovieLens 开源数据：25 张表、6 个层级（ODS→DIM→DWD→DWM→DWS→ADS）| MovieLens open data: 25 tables, 6 layers*
-
-### 建模后的看板输出 | Dashboard Output
-
-![Dashboard](screenshots/dashboard-output.png)
-*从杂乱数据到飞书风格可交互看板 | From raw data to Feishu-style interactive dashboard*
+*25 张表、6 个层级（ODS→DIM→DWD→DWM→DWS→ADS）| 25 tables, 6 layers*
 
 ## 它做了什么 | What It Does
 
